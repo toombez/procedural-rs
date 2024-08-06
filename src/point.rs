@@ -1,4 +1,5 @@
 use std::ops::{Index, IndexMut};
+use std::hash::Hash;
 
 pub trait PointCoordinate: Clone {}
 impl<T: Clone> PointCoordinate for T {}
@@ -46,3 +47,9 @@ impl <const DIMENSION: usize, T: PointCoordinate + Ord> Ord for Point<DIMENSION,
     }
 }
 
+// Hash trait
+impl <const DIMENSION: usize, T: PointCoordinate + Hash> Hash for Point<DIMENSION, T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.coordinates.hash(state);
+    }
+}
