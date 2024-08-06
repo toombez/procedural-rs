@@ -10,6 +10,8 @@ pub trait PointImplementation<const DIMENSION: usize, T: PointCoordinate>:
     + for<'a> From<&'a Vec<T>>
     + From<[T; DIMENSION]>
     + for <'a> From<&'a [T; DIMENSION]>
+    + Into<Vec<T>>
+    + Into<[T; DIMENSION]>
 {
     fn coordinates(&self) -> Vec<T>;
 
@@ -82,3 +84,16 @@ impl <'a, const DIMENSION: usize, T: PointCoordinate> From<&'a [T; DIMENSION]> f
     }
 }
 
+// Into vector and array trait
+impl <const DIMENSION: usize, T: PointCoordinate> Into<Vec<T>> for Point<DIMENSION, T> {
+    fn into(self) -> Vec<T> {
+        self.coordinates.clone()
+    }
+}
+impl <const DIMENSION: usize, T: PointCoordinate> Into<[T; DIMENSION]> for Point<DIMENSION, T> {
+    fn into(self) -> [T; DIMENSION] {
+        self.coordinates
+            .try_into()
+            .unwrap_or_else(|_: Vec<T>| panic!("TODO: MESSAGE"))
+    }
+}
