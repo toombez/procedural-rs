@@ -12,6 +12,9 @@ pub trait PointImplementation<const DIMENSION: usize, T: PointCoordinate>:
     + for <'a> From<&'a [T; DIMENSION]>
     + Into<Vec<T>>
     + Into<[T; DIMENSION]>
+    + IntoIterator
+    + Index<usize>
+    + IndexMut<usize>
 {
     fn coordinates(&self) -> Vec<T>;
 
@@ -97,3 +100,27 @@ impl <const DIMENSION: usize, T: PointCoordinate> Into<[T; DIMENSION]> for Point
             .unwrap_or_else(|_: Vec<T>| panic!("TODO: MESSAGE"))
     }
 }
+
+// IntoIterator, Index and IndexMut trait
+impl <const DIMENSION: usize, T: PointCoordinate> IntoIterator for Point<DIMENSION, T> {
+    type Item = T;
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.coordinates.into_iter()
+    }
+}
+impl <const DIMENSION: usize, T: PointCoordinate> Index<usize> for Point<DIMENSION, T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.coordinates[index]
+    }
+}
+impl <const DIMENSION: usize, T: PointCoordinate> IndexMut<usize> for Point<DIMENSION, T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        self.coordinates.index_mut(index)
+    }
+}
+
