@@ -124,3 +124,9 @@ impl <const DIMENSION: usize, T: PointCoordinate> IndexMut<usize> for Point<DIME
     }
 }
 
+// Default trait
+impl <const DIMENSION: usize, T: PointCoordinate + Default> Default for Point<DIMENSION, T> {
+    fn default() -> Self {
+        Self::from(vec![T::default(); DIMENSION])
+    }
+}
