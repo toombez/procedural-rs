@@ -153,3 +153,31 @@ impl <T: PointCoordinate> Point<0, T> {
     }
 }
 
+// Getters for 1, 2, 3 dimension points
+impl <T: PointCoordinate> Point<1, T> {
+    pub fn x(&self) -> T {
+        self[0].clone()
+    }
+}
+impl <T: PointCoordinate> Point<2, T> {
+    pub fn x(&self) -> T {
+        self[0].clone()
+    }
+
+    pub fn y(&self) -> T {
+        self[1].clone()
+    }
+}
+impl <T: PointCoordinate> Point<3, T> {
+    pub fn x(&self) -> T {
+        self[0].clone()
+    }
+
+    pub fn y(&self) -> T {
+        self[1].clone()
+    }
+
+    pub fn z(&self) -> T {
+        self[2].clone()
+    }
+}
