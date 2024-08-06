@@ -25,3 +25,24 @@ impl <const DIMENSION: usize, T: PointCoordinate> PointImplementation<DIMENSION,
         self.coordinates.clone()
     }
 }
+
+// Eq trait
+impl <const DIMENSION: usize, T: PointCoordinate + PartialEq> PartialEq for Point<DIMENSION, T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.coordinates == other.coordinates
+    }
+}
+impl <const DIMENSION: usize, T: PointCoordinate + Eq> Eq for Point<DIMENSION, T> {}
+
+// Ord trait
+impl <const DIMENSION: usize, T: PointCoordinate + PartialOrd> PartialOrd for Point<DIMENSION, T> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.coordinates.partial_cmp(&other.coordinates)
+    }
+}
+impl <const DIMENSION: usize, T: PointCoordinate + Ord> Ord for Point<DIMENSION, T> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.coordinates.cmp(&other.coordinates)
+    }
+}
+
