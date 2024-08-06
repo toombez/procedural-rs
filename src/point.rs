@@ -130,3 +130,26 @@ impl <const DIMENSION: usize, T: PointCoordinate + Default> Default for Point<DI
         Self::from(vec![T::default(); DIMENSION])
     }
 }
+
+// Fill constructor
+impl <const DIMENSION: usize, T: PointCoordinate> Point<DIMENSION, T> {
+    pub fn fill(value: T) -> Self {
+        Self::from(vec![value; DIMENSION])
+    }
+}
+
+// Basic point dimensions
+impl <T: PointCoordinate> Point<0, T> {
+    pub fn point_1d(x: T) -> Point<1, T> {
+        Point::<1, T>::from(vec![x])
+    }
+
+    pub fn point_2d(x: T, y: T) -> Point<2, T> {
+        Point::<2, T>::from(vec![x, y])
+    }
+
+    pub fn point_3d(x: T, y: T, z: T) -> Point<3, T> {
+        Point::<3, T>::from(vec![x, y, z])
+    }
+}
+
