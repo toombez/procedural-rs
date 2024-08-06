@@ -26,7 +26,7 @@ pub trait PointImplementation<const DIMENSION: usize, T: PointCoordinate>:
 // Base struct
 #[derive(Debug, Clone)]
 pub struct Point<const DIMENSION: usize, T: PointCoordinate> {
-    pub coordinates: Vec<T>,
+    coordinates: Vec<T>,
 }
 
 // Base implementation
