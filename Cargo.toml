@@ -5,3 +5,7 @@ edition = "2021"
 
 [dependencies]
 num = "0.4.3"
+nalgebra = "0.33.2"
+rand = "0.9.1"
+rand_chacha = "0.3.1"
+ndarray = "0.16.1"
