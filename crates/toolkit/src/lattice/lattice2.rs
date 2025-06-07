@@ -51,7 +51,21 @@ impl Into<(usize, usize)> for Lattice2Point {
 #[derive(Debug, Clone)]
 pub struct Lattice2<D> {
     points: HashMap<Lattice2Point, D>,
+    size: (usize, usize),
     boundary_handling: BoundaryHandling,
+}
+
+impl<D> Lattice2<D> {
+    pub fn calculate_size(&mut self) {
+        let sizes = self.points.keys().fold((0, 0), |(width, height), point| {
+            let x = width.max(point.x() as usize);
+            let y = height.max(point.y() as usize);
+
+            (x, y)
+        });
+
+        self.size = sizes
+    }
 }
 
 impl<D> From<HashMap<Lattice2Point, D>> for Lattice2<D> {
@@ -59,6 +73,7 @@ impl<D> From<HashMap<Lattice2Point, D>> for Lattice2<D> {
         Self {
             points,
             boundary_handling: BoundaryHandling::Default,
+            size: (0, 0),
         }
     }
 }
@@ -69,16 +84,20 @@ impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
     fn transform_point(&self, point: &Self::Point) -> Self::Point {
         let size = self.size();
 
+        let (x, y) = (point.x(), point.y());
+
+        if x >= 0 && (x as usize) < size.0 && y >= 0 && (y as usize) < size.1 {
+            return *point;
+        }
+
         match self.boundary_handling() {
             BoundaryHandling::Default => *point,
-            BoundaryHandling::Clamp => Lattice2Point::new(
-                clamp_coordinate(point.x(), size.0),
-                clamp_coordinate(point.y(), size.1),
-            ),
-            BoundaryHandling::Wrap => Lattice2Point::new(
-                wrap_coordinate(point.x(), size.0),
-                wrap_coordinate(point.y(), size.1),
-            ),
+            BoundaryHandling::Clamp => {
+                Lattice2Point::new(clamp_coordinate(x, size.0), clamp_coordinate(y, size.1))
+            }
+            BoundaryHandling::Wrap => {
+                Lattice2Point::new(wrap_coordinate(x, size.0), wrap_coordinate(y, size.1))
+            }
         }
     }
 
@@ -91,12 +110,7 @@ impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
     }
 
     fn size(&self) -> Self::Size {
-        self.points.keys().fold((0, 0), |(width, height), point| {
-            let x = width.max(point.x() as usize);
-            let y = height.max(point.y() as usize);
-
-            (x, y)
-        })
+        self.size
     }
 }
 
@@ -111,9 +125,7 @@ impl<D: Clone + Default> Lattice for Lattice2<D> {
     }
 
     fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
-        let transformed = self.transform_point(point);
-
-        self.points.insert(transformed, state.clone());
+        self.points.insert(*point, state.clone());
     }
 
     fn points(&self) -> Vec<Self::Point> {
@@ -121,8 +133,8 @@ impl<D: Clone + Default> Lattice for Lattice2<D> {
 
         let mut points = vec![];
 
-        for x in 0..size.1 {
-            for y in 0..size.0 {
+        for x in 0..size.0 {
+            for y in 0..size.1 {
                 points.push(Lattice2Point::from((x, y)));
             }
         }
