@@ -2,4 +2,5 @@
 resolver = "3"
 members = [
     "crates/toolkit",
+    "crates/wolfram_code",
 ]
