@@ -1,0 +1,8 @@
+[package]
+name = "game_of_life"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+toolkit = { path = "../toolkit" }
+clearscreen = "4.0.1"
