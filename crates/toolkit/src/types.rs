@@ -41,7 +41,7 @@ pub trait Neighborhood {
 pub trait NeighborhoodBuilder<L: Lattice> {
     type Neighborhood: Neighborhood<State = L::State>;
 
-    fn build_neighborhood(point: &L::Point, lattice: &L) -> Self::Neighborhood;
+    fn build_neighborhood(&self, point: &L::Point, lattice: &L) -> Self::Neighborhood;
 }
 
 pub trait Rule {
@@ -63,22 +63,23 @@ pub trait CellularAutomaton {
     >;
 
     fn rule(&self) -> &Self::Rule;
+    fn neighborhood_builder(&self) -> Self::NeighborhoodBuilder;
 
     fn step(&self, lattice: &mut Self::Lattice) {
         let points = lattice.points();
 
         let mut new_states = Vec::with_capacity(points.len());
         let rule = self.rule();
+        let builder = self.neighborhood_builder();
 
         for point in &points {
-            let neighborhood = Self::NeighborhoodBuilder::build_neighborhood(&point, lattice);
+            let neighborhood = builder.build_neighborhood(&point, lattice);
             let current_state = lattice.get_state(&point);
 
             let new_state = rule.apply(&current_state, &neighborhood);
             new_states.push(new_state);
         }
 
-        // Применяем вычисленные состояния к решетке
         for (point, new_state) in points.into_iter().zip(new_states) {
             lattice.set_state(&point, &new_state);
         }
