@@ -3,6 +3,12 @@ name = "wolfram_code"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+wasm = ["dep:wasm-bindgen", "toolkit/wasm"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-wasm-bindgen = { version = "0.2.100" }
-toolkit = { path = "../toolkit" }
+wasm-bindgen = { version = "0.2.100", optional = true }
+toolkit = { path = "../toolkit", features = [] }
