@@ -1,6 +1,8 @@
-use std::fmt::Debug;
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub enum BoundaryHandling {
     #[default]
     Default,
