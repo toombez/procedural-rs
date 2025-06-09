@@ -1,0 +1,18 @@
+{
+  "name": "@procedural/wolfram_code",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build:wasm": "wasm-pack build --target web -- --features wasm"
+  },
+  "keywords": [],
+  "author": "",
+  "main": "./pkg/wolfram_code.js",
+  "types": "./pkg/wolfram_code.d.ts",
+  "files": [
+    "./pkg/wolfram_code_bg.wasm",
+    "./pkg/wolfram_code.js",
+    "./pkg/wolfram_code.d.ts"
+  ],
+  "license": "ISC"
+}
