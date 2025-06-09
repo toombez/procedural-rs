@@ -1,4 +1,8 @@
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
+
 #[derive(Debug, Clone, Copy, Default)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub enum WolframCodeState {
     #[default]
     Dead,
