@@ -6,7 +6,7 @@ use toolkit::{
 };
 
 #[cfg(feature = "wasm")]
-use toolkit::types::{BoundaryHandling, BoundaryHandlingLattice, Lattice};
+use toolkit::{lattice::lattice1::Lattice1Point, types::{BoundaryHandling, BoundaryHandlingLattice, Lattice}};
 
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -40,15 +40,15 @@ impl CellularAutomaton for WolframCodeAutomaton {
 }
 
 #[cfg(feature = "wasm")]
-#[wasm_bindgen(js_name = "WolframCodeLattice")]
+#[wasm_bindgen]
 #[derive(Debug, Clone)]
-pub struct WasmWolframCodeLattice {
+pub struct WolframCodeLattice {
     lattice: Lattice1<WolframCodeState>,
 }
 
 #[cfg(feature = "wasm")]
-#[wasm_bindgen(js_class = "WolframCodeLattice")]
-impl WasmWolframCodeLattice {
+#[wasm_bindgen]
+impl WolframCodeLattice {
     #[wasm_bindgen(constructor)]
     pub fn new(points: Vec<WolframCodeState>) -> Self {
         Self {
@@ -59,6 +59,11 @@ impl WasmWolframCodeLattice {
     #[wasm_bindgen]
     pub fn set_boundary_handing(&mut self, boundary_handling: BoundaryHandling) {
         self.lattice.set_boundary_handling(boundary_handling);
+    }
+
+    #[wasm_bindgen]
+    pub fn set_state(&mut self, point: &Lattice1Point, state: WolframCodeState) {
+        self.lattice.set_state(point, &state);
     }
 
     #[wasm_bindgen]
@@ -75,7 +80,7 @@ impl WasmWolframCodeLattice {
 #[wasm_bindgen]
 impl WolframCodeAutomaton {
     #[wasm_bindgen(js_name = "step")]
-    pub fn wasm_step(&self, lattice: &mut WasmWolframCodeLattice) {
+    pub fn wasm_step(&self, lattice: &mut WolframCodeLattice) {
         self.step(&mut lattice.lattice);
     }
 }
