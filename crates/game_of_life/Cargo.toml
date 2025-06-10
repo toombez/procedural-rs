@@ -12,4 +12,3 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2.100", optional = true }
 toolkit = { path = "../toolkit", features = []}
-clearscreen = "4.0.1"
