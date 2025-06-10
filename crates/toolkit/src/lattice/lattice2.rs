@@ -84,6 +84,16 @@ impl<D> From<HashMap<Lattice2Point, D>> for Lattice2<D> {
     }
 }
 
+impl <D> From<(usize, usize)> for Lattice2<D> {
+    fn from(size: (usize, usize)) -> Self {
+        Self {
+            points: HashMap::new(),
+            boundary_handling: BoundaryHandling::Default,
+            size,
+        }
+    }
+}
+
 impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
     type Size = (usize, usize);
 
@@ -118,6 +128,10 @@ impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
     fn size(&self) -> Self::Size {
         self.size
     }
+
+    fn set_size(&mut self, size: Self::Size) {
+        self.size = size
+    }
 }
 
 impl<D: Clone + Default> Lattice for Lattice2<D> {
@@ -131,7 +145,9 @@ impl<D: Clone + Default> Lattice for Lattice2<D> {
     }
 
     fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
-        self.points.insert(*point, state.clone());
+        let transformed = self.transform_point(point);
+
+        self.points.insert(transformed, state.clone());
     }
 
     fn points(&self) -> Vec<Self::Point> {
