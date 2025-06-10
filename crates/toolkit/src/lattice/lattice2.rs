@@ -1,24 +1,30 @@
-use std::{collections::HashMap, fmt::Debug};
-
-use nalgebra::{Const, OPoint};
-
 use crate::{
     types::{BoundaryHandling, BoundaryHandlingLattice, Lattice},
     utils::{clamp_coordinate, wrap_coordinate},
 };
+use nalgebra::{Const, OPoint};
+use std::collections::HashMap;
+
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Lattice2Point(OPoint<i128, Const<2>>);
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Lattice2Point {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(x: i128, y: i128) -> Self {
         Self(OPoint::<i128, Const<2>>::new(x, y))
     }
 
+    #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
     pub fn x(&self) -> i128 {
         self.0.x
     }
 
+    #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
     pub fn y(&self) -> i128 {
         self.0.y
     }

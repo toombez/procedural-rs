@@ -35,7 +35,6 @@ pub fn main() {
     let size = lattice2.size();
 
     for _ in 0..100 {
-        clearscreen::clear().expect("failed to clear screen");
         let mut s = String::new();
 
         for y in 0..size.1 {

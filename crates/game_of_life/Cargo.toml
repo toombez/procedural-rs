@@ -3,6 +3,12 @@ name = "game_of_life"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+wasm = ["dep:wasm-bindgen", "toolkit/wasm"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-toolkit = { path = "../toolkit" }
-clearscreen = "4.0.1"
+wasm-bindgen = { version = "0.2.100", optional = true }
+toolkit = { path = "../toolkit", features = []}

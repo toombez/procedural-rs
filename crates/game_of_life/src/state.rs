@@ -1,5 +1,8 @@
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub enum GameOfLifeState {
     #[default]
     Dead,

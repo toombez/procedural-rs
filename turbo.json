@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+    },
+    "build:wasm": {},
+    "dev": {
+      "persistent": true,
+      "cache": false
+    }
+  }
+}

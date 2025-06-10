@@ -1,15 +1,18 @@
-use std::collections::HashMap;
-
-use toolkit::types::Rule;
-
 use crate::state::WolframCodeState;
+use std::collections::HashMap;
+use toolkit::types::Rule;
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct WolframCodeRule {
-    pub transform_map: HashMap<(bool, bool, bool), bool>,
+    transform_map: HashMap<(bool, bool, bool), bool>,
 }
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl WolframCodeRule {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(rule: u8) -> Self {
         let mut map = HashMap::new();
 

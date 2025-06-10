@@ -1,20 +1,24 @@
-use std::fmt::Debug;
-
-use nalgebra::{Const, OPoint};
-
 use crate::{
     types::{BoundaryHandling, BoundaryHandlingLattice, Lattice},
     utils::{clamp_coordinate, wrap_coordinate},
 };
+use nalgebra::{Const, OPoint};
+
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Lattice1Point(OPoint<i128, Const<1>>);
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl Lattice1Point {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(x: i128) -> Self {
         Self(OPoint::<i128, Const<1>>::new(x))
     }
 
+    #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
     pub fn x(&self) -> i128 {
         self.0.x
     }

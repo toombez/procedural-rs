@@ -3,7 +3,11 @@ use toolkit::prelude::*;
 
 use crate::state::GameOfLifeState;
 use crate::utils::{count_alive};
+#[cfg(feature = "wasm")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct GameOfLifeRule {
     amount_to_underpopulation: u8,
     amount_to_overpopulation: u8,
@@ -20,7 +24,9 @@ impl Default for GameOfLifeRule {
     }
 }
 
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
 impl GameOfLifeRule {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(
         amount_to_underpopulation: u8,
         amount_to_overpopulation: u8,
