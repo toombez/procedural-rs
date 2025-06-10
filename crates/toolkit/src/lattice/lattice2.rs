@@ -62,7 +62,7 @@ pub struct Lattice2<D> {
 }
 
 impl<D> Lattice2<D> {
-    pub fn calculate_size(&mut self) {
+    fn calculate_size(&mut self) {
         let sizes = self.points.keys().fold((0, 0), |(width, height), point| {
             let x = width.max(point.x() as usize);
             let y = height.max(point.y() as usize);
@@ -76,11 +76,15 @@ impl<D> Lattice2<D> {
 
 impl<D> From<HashMap<Lattice2Point, D>> for Lattice2<D> {
     fn from(points: HashMap<Lattice2Point, D>) -> Self {
-        Self {
+        let mut lattice = Self {
             points,
             boundary_handling: BoundaryHandling::Default,
             size: (0, 0),
-        }
+        };
+
+        lattice.calculate_size();
+
+        lattice
     }
 }
 
@@ -155,8 +159,8 @@ impl<D: Clone + Default> Lattice for Lattice2<D> {
 
         let mut points = vec![];
 
-        for x in 0..size.0 {
-            for y in 0..size.1 {
+        for y in 0..size.1 {
+            for x in 0..size.0 {
                 points.push(Lattice2Point::from((x, y)));
             }
         }
