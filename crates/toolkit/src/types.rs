@@ -29,6 +29,7 @@ where
     fn set_boundary_handling(&mut self, boundary_handling: BoundaryHandling);
     fn boundary_handling(&self) -> BoundaryHandling;
     fn size(&self) -> Self::Size;
+    fn set_size(&mut self, size: Self::Size);
 }
 
 pub trait Neighborhood {

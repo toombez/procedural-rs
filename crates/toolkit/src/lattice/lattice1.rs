@@ -94,6 +94,10 @@ impl<D: Default + Clone> BoundaryHandlingLattice for Lattice1<D> {
     fn size(&self) -> Self::Size {
         self.points.len()
     }
+
+    fn set_size(&mut self, size: Self::Size) {
+        self.points.resize(size, D::default());
+    }
 }
 
 impl<D: Default + Clone> Lattice for Lattice1<D> {

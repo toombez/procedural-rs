@@ -26,7 +26,6 @@ pub fn main() {
         states.insert(Lattice2Point::new(2, 1), GameOfLifeState::Alive);
 
         let mut states = Lattice2::from(states);
-        states.calculate_size();
         states.set_boundary_handling(BoundaryHandling::Wrap);
 
         states
