@@ -1,13 +1,19 @@
-use crate::{lattice::lattice1::{Lattice1, Lattice1Point}, prelude::*};
+use crate::{
+    lattice::lattice1::{Lattice1, Lattice1Point},
+    prelude::*,
+};
 
 #[derive(Debug, Clone)]
 pub struct NearestNeighborhood1<S> {
     states: Vec<S>,
 }
 
-impl <S> Neighborhood for NearestNeighborhood1<S> {
+impl<S> Neighborhood for NearestNeighborhood1<S> {
     type State = S;
-    type Iter<'a> = std::slice::Iter<'a, S> where Self: 'a;
+    type Iter<'a>
+        = std::slice::Iter<'a, S>
+    where
+        Self: 'a;
 
     fn iter_states(&self) -> Self::Iter<'_> {
         self.states.iter()
@@ -21,9 +27,7 @@ pub struct NearestNeighborhoodBuilder1 {
 
 impl NearestNeighborhoodBuilder1 {
     pub fn new(radius: usize) -> Self {
-        Self {
-            radius
-        }
+        Self { radius }
     }
 }
 
@@ -33,10 +37,14 @@ impl From<usize> for NearestNeighborhoodBuilder1 {
     }
 }
 
-impl <S: Clone + Default> NeighborhoodBuilder<Lattice1<S>> for NearestNeighborhoodBuilder1 {
+impl<S: Clone + Default> NeighborhoodBuilder<Lattice1<S>> for NearestNeighborhoodBuilder1 {
     type Neighborhood = NearestNeighborhood1<S>;
 
-    fn build_neighborhood(&self, point: &<Lattice1<S> as Lattice>::Point, lattice: &Lattice1<S>) -> Self::Neighborhood {
+    fn build_neighborhood(
+        &self,
+        point: &<Lattice1<S> as Lattice>::Point,
+        lattice: &Lattice1<S>,
+    ) -> Self::Neighborhood {
         let mut states = Vec::new();
 
         for offset in -(self.radius as i128)..=(self.radius as i128) {
@@ -48,9 +56,8 @@ impl <S: Clone + Default> NeighborhoodBuilder<Lattice1<S>> for NearestNeighborho
             let state = lattice.get_state(&neighbor_point);
 
             states.push(state);
-        };
+        }
 
         NearestNeighborhood1 { states }
     }
-
 }

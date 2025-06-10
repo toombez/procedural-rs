@@ -1,2 +1,2 @@
-pub mod nearest;
 pub mod moore;
+pub mod nearest;
