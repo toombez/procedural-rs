@@ -11,5 +11,13 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-    <NuxtPage />
+    <div>
+        <NuxtLink to="/">
+            Index
+        </NuxtLink>
+        <NuxtLink to="/wolfram-code">
+            Wolfram
+        </NuxtLink>
+        <NuxtPage />
+    </div>
 </template>
