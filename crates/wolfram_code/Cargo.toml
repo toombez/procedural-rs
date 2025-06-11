@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-wasm = ["dep:wasm-bindgen", "toolkit/wasm"]
+wasm = ["dep:wasm-bindgen", "toolkit/wasm", "lattice-wrapper-macros/wasm"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -12,3 +12,4 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2.100", optional = true }
 toolkit = { path = "../toolkit", features = [] }
+lattice-wrapper-macros = { path = "../lattice-wrapper-macros" }
