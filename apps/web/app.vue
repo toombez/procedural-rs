@@ -18,6 +18,9 @@ onBeforeMount(async () => {
         <NuxtLink to="/wolfram-code">
             Wolfram
         </NuxtLink>
+        <NuxtLink to="/game-of-life">
+            Game of life
+        </NuxtLink>
         <NuxtPage />
     </div>
 </template>
