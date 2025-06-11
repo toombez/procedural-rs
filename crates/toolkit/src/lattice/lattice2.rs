@@ -11,8 +11,26 @@ use wasm_bindgen::prelude::*;
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Lattice2Size {
-    pub width: usize,
-    pub height: usize,
+    width: usize,
+    height: usize,
+}
+
+#[cfg_attr(feature = "wasm", wasm_bindgen)]
+impl Lattice2Size {
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
+    pub fn new(width: usize, height: usize) -> Self {
+        Self { width, height }
+    }
+
+    #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
+    pub fn height(&self) -> usize {
+        self.height
+    }
 }
 
 #[derive(Debug, Clone)]

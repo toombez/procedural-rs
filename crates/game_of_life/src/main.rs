@@ -14,10 +14,7 @@ pub fn main() {
     let mut lattice2 = {
         let mut states = GameOfLifeLattice::from_states(
             vec![GameOfLifeState::Dead; 30 * 30],
-            Lattice2Size {
-                width: 30,
-                height: 30,
-            },
+            Lattice2Size::new(30, 30),
         );
 
         states.set_state(&Lattice2Point::new(4, 0), GameOfLifeState::Alive);
@@ -36,8 +33,8 @@ pub fn main() {
     for _ in 0..100 {
         let mut s = String::new();
 
-        for y in 0..size.height {
-            for x in 0..size.width {
+        for y in 0..size.height() {
+            for x in 0..size.width() {
                 let state = lattice2.get_state(&Lattice2Point::new(x as i128, y as i128));
 
                 let ch = match state {
