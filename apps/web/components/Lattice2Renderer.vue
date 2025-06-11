@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
     cellSize?: number,
     x?: number,
     y?: number,
-    colors: Map<S, number>
+    colors: Map<S, number | string>
 }>(), {
     cellSize: 1,
     x: 0,
@@ -21,7 +21,7 @@ function render(graphics: GraphicsInst) {
     props
         .states
         .forEach((statesRow, y) => statesRow.forEach((state, x) => {
-            drawSquareCell(graphics, x, y, cellSize, colors.get(state)!)
+            drawSquareCell(graphics, x * cellSize, y * cellSize, cellSize, colors.get(state)!)
         }))
 }
 </script>
