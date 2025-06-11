@@ -245,7 +245,7 @@ function fillAlive() {
             />
 
             <Lattice2Pointer
-                v-if="hoveredX !== null"
+                v-if="hoveredX !== null && hoveredY !== null"
                 :cell-size="renderSettings.cellSize"
                 :color="'#F5DA5199'"
                 :x="hoveredX * renderSettings.cellSize"
