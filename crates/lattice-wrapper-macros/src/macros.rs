@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! lattice_wasm {
-    ($type:ty, $point:ty, $name:ident, $lattice:ident, $size:ident) => {
+    ($type:ty, $point:ty, $name:ident, $lattice:ident, $size:ident, $automaton:ident) => {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         #[derive(Debug, Clone)]
         pub struct $name {
@@ -86,6 +86,14 @@ macro_rules! lattice_wasm {
         impl Into<$lattice> for $name {
             fn into(self) -> $lattice {
                 self.inner
+            }
+        }
+
+        #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        impl $automaton {
+            #[cfg_attr(feature = "wasm", wasm_bindgen(js_name = "step"))]
+            pub fn step_wrapper(&self, lattice: &mut $name) {
+                self.step(&mut lattice.inner);
             }
         }
     };
