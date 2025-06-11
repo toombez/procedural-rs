@@ -11,8 +11,8 @@ use wasm_bindgen::prelude::*;
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Lattice2Size {
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
 }
 
 #[derive(Debug, Clone)]
