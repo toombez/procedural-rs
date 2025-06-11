@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GameOfLifeAutomaton, GameOfLifeLattice, GameOfLifeRule, GameOfLifeState, Lattice2Point } from '@procedural/game_of_life';
+import { GameOfLifeAutomaton, GameOfLifeLattice, GameOfLifeRule, GameOfLifeState, Lattice2Point, Lattice2Size } from '@procedural/game_of_life';
 import { BoundaryHandling } from '@procedural/toolkit'
 
 const automatonSettings = reactive({
@@ -27,15 +27,14 @@ const colorsMap = computed(() => new Map([
 const population = ref<Array<GameOfLifeState>>([])
 
 function evolve() {
+    // TODO: fix step method
     // const rule = new GameOfLifeRule(2, 4, 3)
     const rule = new GameOfLifeRule(2, 3, 3)
     const automaton = new GameOfLifeAutomaton(rule)
-    const lattice = new GameOfLifeLattice()
+    const lattice = new GameOfLifeLattice(population.value, new Lattice2Size(automatonSettings.populationSize.columns, automatonSettings.populationSize.rows))
 
     const width = automatonSettings.populationSize.columns
     const height = automatonSettings.populationSize.rows
-
-    lattice.set_size(width, height)
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < height; x++) {

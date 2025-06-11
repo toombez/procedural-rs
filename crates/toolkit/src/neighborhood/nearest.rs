@@ -1,5 +1,5 @@
 use crate::{
-    lattice::lattice1::{Lattice1, Lattice1Point},
+    lattice::{lattice1::Lattice1, lattice1_point::Lattice1Point},
     prelude::*,
 };
 

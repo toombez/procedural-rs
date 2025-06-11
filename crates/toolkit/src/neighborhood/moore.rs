@@ -1,5 +1,5 @@
 use crate::{
-    lattice::lattice2::{Lattice2, Lattice2Point},
+    lattice::{lattice2::Lattice2, lattice2_point::Lattice2Point},
     types::{Lattice, Neighborhood, NeighborhoodBuilder},
 };
 

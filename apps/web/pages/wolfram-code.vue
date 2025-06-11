@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BoundaryHandling } from '@procedural/toolkit'
-import { WolframCodeAutomaton, WolframCodeLattice, WolframCodeRule, WolframCodeState } from '@procedural/wolfram_code'
+import { WolframCodeAutomaton, WolframCodeLattice, WolframCodeRule, WolframCodeState, Lattice1Size } from '@procedural/wolfram_code'
 
 const automatonSettings = reactive({
     populationSize: 50,
@@ -31,9 +31,9 @@ function evolve() {
     const rule = new WolframCodeRule(automatonSettings.ruleNumber)
     const automaton = new WolframCodeAutomaton(rule)
 
-    const lattice = new WolframCodeLattice(initialPopulation.value)
+    const lattice = new WolframCodeLattice(initialPopulation.value, new Lattice1Size(initialPopulation.value.length))
 
-    lattice.set_boundary_handing(automatonSettings.boundaryHandling)
+    lattice.set_boundary_handling(automatonSettings.boundaryHandling)
 
     history.value = []
 

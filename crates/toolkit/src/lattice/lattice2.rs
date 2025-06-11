@@ -1,122 +1,125 @@
 use crate::{
+    lattice::lattice2_point::Lattice2Point,
     types::{BoundaryHandling, BoundaryHandlingLattice, Lattice},
     utils::{clamp_coordinate, wrap_coordinate},
 };
-use nalgebra::{Const, OPoint};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[cfg(feature = "wasm")]
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
-pub struct Lattice2Point(OPoint<i128, Const<2>>);
+pub struct Lattice2Size {
+    width: usize,
+    height: usize,
+}
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
-impl Lattice2Point {
+impl Lattice2Size {
     #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
-    pub fn new(x: i128, y: i128) -> Self {
-        Self(OPoint::<i128, Const<2>>::new(x, y))
+    pub fn new(width: usize, height: usize) -> Self {
+        Self { width, height }
     }
 
     #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
-    pub fn x(&self) -> i128 {
-        self.0.x
+    pub fn width(&self) -> usize {
+        self.width
     }
 
     #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
-    pub fn y(&self) -> i128 {
-        self.0.y
-    }
-}
-
-impl From<(i128, i128)> for Lattice2Point {
-    fn from(value: (i128, i128)) -> Self {
-        Self::new(value.0, value.1)
-    }
-}
-
-impl Into<(i128, i128)> for Lattice2Point {
-    fn into(self) -> (i128, i128) {
-        (self.x(), self.y())
-    }
-}
-
-impl From<(usize, usize)> for Lattice2Point {
-    fn from(value: (usize, usize)) -> Self {
-        Self::new(value.0 as i128, value.1 as i128)
-    }
-}
-
-impl Into<(usize, usize)> for Lattice2Point {
-    fn into(self) -> (usize, usize) {
-        (self.x() as usize, self.y() as usize)
+    pub fn height(&self) -> usize {
+        self.height
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct Lattice2<D> {
-    points: HashMap<Lattice2Point, D>,
-    size: (usize, usize),
+    points: BTreeMap<Lattice2Point, D>,
+    size: Lattice2Size,
     boundary_handling: BoundaryHandling,
 }
 
-impl<D> Lattice2<D> {
-    fn calculate_size(&mut self) {
-        let sizes = self.points.keys().fold((0, 0), |(width, height), point| {
-            let x = width.max(point.x() as usize);
-            let y = height.max(point.y() as usize);
-
-            (x, y)
-        });
-
-        self.size = sizes
-    }
-}
-
-impl<D> From<HashMap<Lattice2Point, D>> for Lattice2<D> {
-    fn from(points: HashMap<Lattice2Point, D>) -> Self {
-        let mut lattice = Self {
-            points,
-            boundary_handling: BoundaryHandling::Default,
-            size: (0, 0),
-        };
-
-        lattice.calculate_size();
-
-        lattice
-    }
-}
-
-impl <D> From<(usize, usize)> for Lattice2<D> {
-    fn from(size: (usize, usize)) -> Self {
+impl<D> From<Lattice2Size> for Lattice2<D>
+where
+    D: Clone + Default,
+{
+    fn from(size: Lattice2Size) -> Self {
         Self {
-            points: HashMap::new(),
-            boundary_handling: BoundaryHandling::Default,
+            boundary_handling: BoundaryHandling::default(),
+            points: BTreeMap::new(),
             size,
         }
     }
 }
 
-impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
-    type Size = (usize, usize);
+impl<D> Lattice for Lattice2<D>
+where
+    D: Clone + Default,
+{
+    type Point = Lattice2Point;
+    type State = D;
+
+    fn get_state(&self, point: &Self::Point) -> Self::State {
+        self.points.get(point).cloned().unwrap_or_default()
+    }
+
+    fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
+        self.points.insert(*point, state.clone());
+    }
+
+    fn points(&self) -> Vec<Self::Point> {
+        self.points.keys().map(|point| *point).collect()
+    }
+
+    fn states(&self) -> Vec<Self::State> {
+        self.points.iter().map(|(_, state)| state.clone()).collect()
+    }
+}
+
+impl<D> BoundaryHandlingLattice for Lattice2<D>
+where
+    D: Clone + Default,
+{
+    type Size = Lattice2Size;
+
+    fn from_states(states: Vec<Self::State>, size: Self::Size) -> Self {
+        let mut lattice = Self::from(size);
+
+        states.iter().enumerate().for_each(|(idx, state)| {
+            let x = (idx / size.height) as i128;
+            let y = (idx % size.width) as i128;
+
+            let point = Lattice2Point::new(x, y);
+
+            lattice.set_state(&point, state);
+        });
+
+        lattice
+    }
 
     fn transform_point(&self, point: &Self::Point) -> Self::Point {
-        let size = self.size();
-
+        let Lattice2Size { width, height } = self.size();
         let (x, y) = (point.x(), point.y());
 
-        if x >= 0 && (x as usize) < size.0 && y >= 0 && (y as usize) < size.1 {
+        let is_in_width = x >= 0 && (x as usize) < width;
+        let is_in_height = y >= 0 && (y as usize) < height;
+
+        if is_in_width && is_in_height {
             return *point;
         }
 
         match self.boundary_handling() {
             BoundaryHandling::Default => *point,
             BoundaryHandling::Clamp => {
-                Lattice2Point::new(clamp_coordinate(x, size.0), clamp_coordinate(y, size.1))
+                let clamped_x = clamp_coordinate(x, width);
+                let clamped_y = clamp_coordinate(y, height);
+                Lattice2Point::new(clamped_x, clamped_y)
             }
             BoundaryHandling::Wrap => {
-                Lattice2Point::new(wrap_coordinate(x, size.0), wrap_coordinate(y, size.1))
+                let wrapped_x = wrap_coordinate(x, width);
+                let wrapped_y = wrap_coordinate(y, height);
+                Lattice2Point::new(wrapped_x, wrapped_y)
             }
         }
     }
@@ -135,45 +138,5 @@ impl<D: Clone + Default> BoundaryHandlingLattice for Lattice2<D> {
 
     fn set_size(&mut self, size: Self::Size) {
         self.size = size
-    }
-}
-
-impl<D: Clone + Default> Lattice for Lattice2<D> {
-    type Point = Lattice2Point;
-    type State = D;
-
-    fn get_state(&self, point: &Self::Point) -> Self::State {
-        let transformed = self.transform_point(point);
-
-        self.points.get(&transformed).cloned().unwrap_or_default()
-    }
-
-    fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
-        let transformed = self.transform_point(point);
-
-        self.points.insert(transformed, state.clone());
-    }
-
-    fn points(&self) -> Vec<Self::Point> {
-        let size = self.size();
-
-        let mut points = vec![];
-
-        for y in 0..size.1 {
-            for x in 0..size.0 {
-                points.push(Lattice2Point::from((x, y)));
-            }
-        }
-
-        points
-    }
-}
-
-impl<D> IntoIterator for Lattice2<D> {
-    type Item = (Lattice2Point, D);
-    type IntoIter = std::collections::hash_map::IntoIter<Lattice2Point, D>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.points.into_iter()
     }
 }

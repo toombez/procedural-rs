@@ -17,14 +17,17 @@ pub trait Lattice {
     fn get_state(&self, point: &Self::Point) -> Self::State;
     fn set_state(&mut self, point: &Self::Point, state: &Self::State);
     fn points(&self) -> Vec<Self::Point>;
+    fn states(&self) -> Vec<Self::State>;
 }
 
-pub trait BoundaryHandlingLattice: Lattice
+pub trait BoundaryHandlingLattice
 where
     Self::Point: Clone,
+    Self: Lattice + From<Self::Size>
 {
     type Size: Copy;
 
+    fn from_states(states: Vec<Self::State>, size: Self::Size) -> Self;
     fn transform_point(&self, point: &Self::Point) -> Self::Point;
     fn set_boundary_handling(&mut self, boundary_handling: BoundaryHandling);
     fn boundary_handling(&self) -> BoundaryHandling;

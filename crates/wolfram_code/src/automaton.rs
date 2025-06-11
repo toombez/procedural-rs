@@ -1,12 +1,15 @@
 use crate::{rule::WolframCodeRule, state::WolframCodeState};
+use toolkit::lattice::lattice1::Lattice1Size;
 use toolkit::{
-    lattice::lattice1::Lattice1,
+    lattice::{lattice1::Lattice1, lattice1_point::Lattice1Point},
     neighborhood::nearest::NearestNeighborhoodBuilder1,
-    types::{CellularAutomaton},
+    types::CellularAutomaton,
 };
 
+use lattice_wrapper_macros::prelude::*;
+
 #[cfg(feature = "wasm")]
-use toolkit::{lattice::lattice1::Lattice1Point, types::{BoundaryHandling, BoundaryHandlingLattice, Lattice}};
+use toolkit::types::{BoundaryHandling, BoundaryHandlingLattice, Lattice};
 
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -40,68 +43,14 @@ impl CellularAutomaton for WolframCodeAutomaton {
 }
 
 #[cfg(feature = "wasm")]
-#[wasm_bindgen]
-#[derive(Debug, Clone)]
-pub struct WolframCodeLattice(Lattice1<WolframCodeState>);
+type InnerLattice = Lattice1<WolframCodeState>;
 
 #[cfg(feature = "wasm")]
-#[wasm_bindgen]
-impl WolframCodeLattice {
-    #[wasm_bindgen(constructor)]
-    pub fn new(points: Vec<WolframCodeState>) -> Self {
-        Self(Lattice1::<WolframCodeState>::from(points))
-    }
-
-    #[wasm_bindgen]
-    pub fn from_size(size: usize) -> Self {
-        Self(Lattice1::<WolframCodeState>::from(size))
-    }
-
-    #[wasm_bindgen]
-    pub fn set_boundary_handing(&mut self, boundary_handling: BoundaryHandling) {
-        self.0.set_boundary_handling(boundary_handling);
-    }
-
-    #[wasm_bindgen]
-    pub fn set_state(&mut self, point: &Lattice1Point, state: WolframCodeState) {
-        self.0.set_state(point, &state);
-    }
-
-    #[wasm_bindgen]
-    pub fn get_state(&self, point: &Lattice1Point) -> WolframCodeState {
-        self.0.get_state(point)
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn points(&self) -> Vec<Lattice1Point> {
-        self.0.points()
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn size(&self) -> usize {
-        self.0.size()
-    }
-
-    #[wasm_bindgen(setter, js_name = "size")]
-    pub fn set_size(&mut self, size: usize) {
-        self.0.set_size(size);
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn states(&self) -> Vec<WolframCodeState> {
-        self.0
-            .points()
-            .iter()
-            .map(|point| self.get_state(point))
-            .collect()
-    }
-}
-
-#[cfg(feature = "wasm")]
-#[wasm_bindgen]
-impl WolframCodeAutomaton {
-    #[wasm_bindgen(js_name = "step")]
-    pub fn wasm_step(&self, lattice: &mut WolframCodeLattice) {
-        self.step(&mut lattice.0);
-    }
-}
+lattice_wasm!(
+    WolframCodeState,
+    Lattice1Point,
+    WolframCodeLattice,
+    InnerLattice,
+    Lattice1Size,
+    WolframCodeAutomaton
+);
