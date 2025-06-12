@@ -53,7 +53,8 @@ impl Into<(usize, usize)> for Lattice2Point {
 impl Ord for Lattice2Point {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.y().cmp(&other.y()) {
-            Ordering::Less | Ordering::Equal => self.x().cmp(&other.x()),
+            Ordering::Equal => self.x().cmp(&other.x()),
+            Ordering::Less => Ordering::Less,
             Ordering::Greater => Ordering::Greater,
         }
     }
