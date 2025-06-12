@@ -10,7 +10,10 @@ pub enum BoundaryHandling {
     Clamp,
 }
 
-pub trait Lattice {
+pub trait Lattice
+where
+    Self: IntoIterator<Item = (Self::Point, Self::State)>
+{
     type Point;
     type State;
 

@@ -53,6 +53,15 @@ where
     }
 }
 
+impl <D> IntoIterator for Lattice2<D> {
+    type Item = (Lattice2Point, D);
+    type IntoIter = std::collections::btree_map::IntoIter<Lattice2Point, D>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.points.into_iter()
+    }
+}
+
 impl<D> Lattice for Lattice2<D>
 where
     D: Clone + Default,
