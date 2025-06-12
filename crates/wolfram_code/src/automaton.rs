@@ -1,12 +1,12 @@
 use crate::{rule::WolframCodeRule, state::WolframCodeState};
+#[cfg(feature = "wasm")]
+use lattice_wrapper_macros::define_lattice_wrapper;
 use toolkit::lattice::lattice1::Lattice1Size;
 use toolkit::{
     lattice::{lattice1::Lattice1, lattice1_point::Lattice1Point},
     neighborhood::nearest::NearestNeighborhoodBuilder1,
     types::CellularAutomaton,
 };
-
-use lattice_wrapper_macros::prelude::*;
 
 #[cfg(feature = "wasm")]
 use toolkit::types::{BoundaryHandling, BoundaryHandlingLattice, Lattice};
@@ -46,11 +46,11 @@ impl CellularAutomaton for WolframCodeAutomaton {
 type InnerLattice = Lattice1<WolframCodeState>;
 
 #[cfg(feature = "wasm")]
-lattice_wasm!(
-    WolframCodeState,
-    Lattice1Point,
+define_lattice_wrapper!(
     WolframCodeLattice,
-    InnerLattice,
+    Lattice1Point,
+    WolframCodeState,
     Lattice1Size,
+    InnerLattice,
     WolframCodeAutomaton
 );

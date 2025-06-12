@@ -35,6 +35,15 @@ pub struct Lattice1<D> {
     size: Lattice1Size,
 }
 
+impl <D> IntoIterator for Lattice1<D> {
+    type Item = (Lattice1Point, D);
+    type IntoIter = std::collections::btree_map::IntoIter<Lattice1Point, D>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.points.into_iter()
+    }
+}
+
 impl<D> From<Lattice1Size> for Lattice1<D>
 where
     D: Clone + Default,
@@ -130,69 +139,3 @@ where
         self.size = size;
     }
 }
-
-// impl<D: Default + Clone> Lattice for Lattice1<D> {
-//     type Point = Lattice1Point;
-//     type State = D;
-
-//     fn get_state(&self, point: &Self::Point) -> Self::State {
-//         let transformed = self.transform_point(point);
-//         let idx = transformed.x() as usize;
-
-//         self.points.get(idx).cloned().unwrap_or_default()
-//     }
-
-//     fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
-//         let transformed = self.transform_point(point);
-//         let idx = transformed.x() as usize;
-
-//         if idx < self.size() {
-//             self.points[idx] = state.clone()
-//         }
-//     }
-
-//     fn points(&self) -> Vec<Self::Point> {
-//         (0..self.size())
-//             .map(|point| Lattice1Point::new(point as i128))
-//             .collect()
-//     }
-
-//     fn states(&self) -> Vec<Self::State> {
-//         self.points.clone()
-//     }
-// }
-
-// impl<D: Default + Clone> BoundaryHandlingLattice for Lattice1<D> {
-//     type Size = usize;
-
-//     fn transform_point(&self, point: &Self::Point) -> Self::Point {
-//         let x = point.x();
-//         let size = self.size();
-
-//         match self.boundary_handling() {
-//             BoundaryHandling::Default => *point,
-//             BoundaryHandling::Clamp => Lattice1Point::from(clamp_coordinate(x, size)),
-//             BoundaryHandling::Wrap => Lattice1Point::from(wrap_coordinate(x, size)),
-//         }
-//     }
-
-//     fn set_boundary_handling(&mut self, boundary_handling: BoundaryHandling) {
-//         self.boundary_handling = boundary_handling;
-//     }
-
-//     fn boundary_handling(&self) -> BoundaryHandling {
-//         self.boundary_handling
-//     }
-
-//     fn size(&self) -> Self::Size {
-//         self.points.len()
-//     }
-
-//     fn set_size(&mut self, size: Self::Size) {
-//         self.points.resize(size, D::default());
-//     }
-
-//     fn from_states(states: Vec<Self::State>, size: Self::Size) -> Self {
-//         todo!()
-//     }
-// }

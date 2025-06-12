@@ -1,11 +1,16 @@
 [package]
 name = "lattice-wrapper-macros"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+
+[lib]
+proc_macro = true
 
 [features]
-wasm = ["dep:wasm-bindgen", "toolkit/wasm"]
+wasm = ["toolkit/wasm"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2.100", optional = true }
+# wasm-bindgen = { version = "0.2.100", optional = true }
 toolkit = { path = "../toolkit", features = [] }
+syn = { version = "2.0", features = ["full", "extra-traits"] }
+quote = "1.0"
