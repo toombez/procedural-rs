@@ -48,8 +48,9 @@ dependencies = [
 name = "lattice-wrapper-macros"
 version = "0.1.0"
 dependencies = [
+ "quote",
+ "syn",
  "toolkit",
- "wasm-bindgen",
 ]
 
 [[package]]
