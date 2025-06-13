@@ -91,12 +91,10 @@ impl <D: Clone + Default> BoundaryHandlingLattice for Lattice3<D> {
     fn from_states(states: Vec<Self::State>, size: Self::Size) -> Self {
         let mut lattice = Self::from(size);
 
-        // TODO: check calculating coordinates
         states.iter().enumerate().for_each(|(idx, state)| {
-            let z = idx % (size.width * size.height);
-            let y = (idx / (size.width * size.height)) as i128;
-            let x = (idx % (z * size.width * size.height)) as i128;
-            let z = z as i128;
+            let z = (idx / (size.width() * size.height())) as i128;
+            let y = (idx % (size.width() * size.height()) % size.width()) as i128;
+            let x = (idx % (size.width() * size.height()) / size.width()) as i128;
 
             let point = Lattice3Point::new(x, y, z);
 
