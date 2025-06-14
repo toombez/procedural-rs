@@ -15,6 +15,14 @@ impl<const D: usize> UniversalLatticePoint<D> {
     pub fn coords(&self) -> [i128; D] {
         self.0.coords()
     }
+
+    pub fn is_inside(&self, size: &UniversalLatticeSize<D>) -> bool {
+        size
+            .into_iter()
+            .map(|size| size as i128)
+            .zip(self.into_iter())
+            .all(|(size, coord)| coord >= 0 && coord < size)
+    }
 }
 
 impl<const D: usize> From<(usize, UniversalLatticeSize<D>)> for UniversalLatticePoint<D> {
