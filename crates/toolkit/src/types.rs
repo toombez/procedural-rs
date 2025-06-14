@@ -81,6 +81,7 @@ pub trait CellularAutomaton {
         let rule = self.rule();
         let builder = self.neighborhood_builder();
 
+        // TODO: iterate over all points based on size
         for point in &points {
             let neighborhood = builder.build_neighborhood(&point, lattice);
             let current_state = lattice.get_state(&point);

@@ -30,6 +30,7 @@ pub fn define_size_wrapper(input: TokenStream) -> TokenStream {
 
     quote! {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        #[derive(Debug, Clone)]
         pub struct #wrapper_name(#size_struct);
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -112,6 +113,18 @@ pub fn define_point_wrapper(input: TokenStream) -> TokenStream {
                 self.0.coords().into_iter().map(|coord| coord as isize).collect()
             }
         }
+
+        impl Into<#point> for #wrapper_name {
+            fn into(self) -> #point {
+                self.0
+            }
+        }
+
+        impl From<#point> for #wrapper_name {
+            fn from(value: #point) -> Self {
+                Self(value)
+            }
+        }
     }
     .into()
 }
@@ -123,6 +136,8 @@ struct LatticeWrapperInput {
     size: Ident,
     lattice: Ident,
     automaton: Ident,
+    inner_size: Ident,
+    inner_point: Ident,
 }
 
 impl Parse for LatticeWrapperInput {
@@ -138,6 +153,10 @@ impl Parse for LatticeWrapperInput {
         let lattice = input.parse()?;
         input.parse::<Token![,]>()?;
         let automaton = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let inner_size = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let inner_point = input.parse()?;
 
         Ok(Self {
             wrapper_name,
@@ -146,6 +165,8 @@ impl Parse for LatticeWrapperInput {
             size,
             lattice,
             automaton,
+            inner_size,
+            inner_point,
         })
     }
 }
@@ -159,6 +180,8 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
         size,
         lattice,
         automaton,
+        inner_size,
+        inner_point,
     } = parse_macro_input!(input as LatticeWrapperInput);
 
     let tuple_name = Ident::new(
@@ -183,12 +206,14 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn from_states(states: Vec<#state>, size: #size) -> Self {
                 Self {
-                    inner: #lattice::from_states(states, size),
+                    inner: #lattice::from_states(states, size.into()),
                 }
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn from_size(size: #size) -> Self {
+                let size: #inner_size = size.into();
+
                 Self {
                     inner: #lattice::from(size),
                 }
@@ -196,17 +221,17 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn get_state(&self, point: &#point) -> #state {
-                self.inner.get_state(point)
+                self.inner.get_state(&(*point).into())
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn set_state(&mut self, point: &#point, state: #state) {
-                self.inner.set_state(point, &state);
+                self.inner.set_state(&(*point).into(), &state);
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
             pub fn points(&self) -> Vec<#point> {
-                self.inner.points()
+                self.inner.points().into_iter().map(|point| point.into()).collect()
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
@@ -216,7 +241,10 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
             pub fn points_with_states(&self) -> Vec<#tuple_name> {
-                self.inner.clone().into_iter().map(#tuple_name::from).collect()
+                self.inner.clone().into_iter().map(|(point, state)| {
+                    let point: #point = point.into();
+                    #tuple_name::from((point, state))
+                }).collect()
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -231,18 +259,18 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn size(&self) -> #size {
-                self.inner.size()
+                self.inner.size().into()
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn set_size(&mut self, size: #size) {
-                self.inner.set_size(size);
+                self.inner.set_size(size.into());
             }
 
-            #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn transform_point(&self, point: &#point) -> #point {
-                self.inner.transform_point(point)
-            }
+            // #[cfg_attr(feature = "wasm", wasm_bindgen)]
+            // pub fn transform_point(&self, point: &#point) -> #point {
+            //     self.inner.transform_point(point)
+            // }
         }
 
         impl From<#lattice> for #wrapper_name {

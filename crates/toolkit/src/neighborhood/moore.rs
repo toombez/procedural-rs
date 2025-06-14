@@ -1,6 +1,5 @@
 use crate::{
-    lattice::{lattice2::Lattice2, lattice2_point::Lattice2Point},
-    types::{Lattice, Neighborhood, NeighborhoodBuilder},
+    lattice::{universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint}, types::{Lattice, Neighborhood, NeighborhoodBuilder}
 };
 
 #[derive(Debug)]
@@ -23,17 +22,17 @@ impl<S> Neighborhood for MooreNeighborhood<S> {
 #[derive(Debug)]
 pub struct MooreNeighborhoodBuilder;
 
-impl<S: Clone + Default> NeighborhoodBuilder<Lattice2<S>> for MooreNeighborhoodBuilder {
+impl<S: Clone + Default> NeighborhoodBuilder<UniversalLattice<2, S>> for MooreNeighborhoodBuilder {
     type Neighborhood = MooreNeighborhood<S>;
 
     fn build_neighborhood(
         &self,
-        point: &<Lattice2<S> as crate::prelude::Lattice>::Point,
-        lattice: &Lattice2<S>,
+        point: &<UniversalLattice<2, S> as crate::prelude::Lattice>::Point,
+        lattice: &UniversalLattice<2, S>,
     ) -> Self::Neighborhood {
         let mut states = Vec::new();
 
-        let (x, y) = (point.x(), point.y());
+        let (x, y) = (point.get(0).unwrap(), point.get(1).unwrap());
 
         let directions = [
             (-1, -1),
@@ -47,7 +46,7 @@ impl<S: Clone + Default> NeighborhoodBuilder<Lattice2<S>> for MooreNeighborhoodB
         ];
 
         for (dx, dy) in directions.iter() {
-            let neighbor_point = Lattice2Point::new(x + dx, y + dy);
+            let neighbor_point = UniversalLatticePoint::new([x + dx, y + dy]);
             states.push(lattice.get_state(&neighbor_point));
         }
 

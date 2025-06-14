@@ -1,24 +1,28 @@
+use toolkit::lattice::{universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint, universal_lattice_size::UniversalLatticeSize};
 use wolfram_code::{
-    automaton::{WolframCodeAutomaton, WolframCodeLattice},
+    automaton::{WolframCodeAutomaton, WolframCodeLattice, WolframCodeLatticePoint, WolframCodeLatticeSize},
     rule::WolframCodeRule,
     state::WolframCodeState,
 };
 
-use toolkit::lattice::{lattice1::Lattice1Size, lattice1_point::Lattice1Point};
+use toolkit::prelude::*;
 
 pub fn main() {
     let ca = WolframCodeAutomaton::new(WolframCodeRule::new(99));
     let mut l =
-        WolframCodeLattice::from_states(vec![WolframCodeState::Dead], Lattice1Size::new(10));
+        UniversalLattice::<1, WolframCodeState>::from_states(vec![WolframCodeState::Dead], WolframCodeLatticeSize::new([10].to_vec()).into());
+
+    let center = *l.size().get(0).unwrap() / 2;
+    let len = *l.size().get(0).unwrap();
 
     l.set_state(
-        &Lattice1Point::new(l.size().width() as i128 / 2),
-        WolframCodeState::Alive,
+        &UniversalLatticePoint::new([center as i128]),
+        &WolframCodeState::Alive,
     );
 
     for _ in 0..30 {
-        for x in 0..l.size().width() {
-            let state = l.get_state(&Lattice1Point::new(x as i128));
+        for x in 0..len {
+            let state = l.get_state(&UniversalLatticePoint::new([x as i128]));
 
             let ch = match state {
                 WolframCodeState::Alive => '█',
@@ -27,7 +31,7 @@ pub fn main() {
 
             print!("{ch}");
         }
-        ca.step_wrapper(&mut l);
+        ca.step(&mut l);
         println!()
     }
 }

@@ -1,5 +1,7 @@
 use crate::{
-    lattice::{lattice1::Lattice1, lattice1_point::Lattice1Point},
+    lattice::{
+        universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint,
+    },
     prelude::*,
 };
 
@@ -37,13 +39,15 @@ impl From<usize> for NearestNeighborhoodBuilder1 {
     }
 }
 
-impl<S: Clone + Default> NeighborhoodBuilder<Lattice1<S>> for NearestNeighborhoodBuilder1 {
+impl<S: Clone + Default> NeighborhoodBuilder<UniversalLattice<1, S>>
+    for NearestNeighborhoodBuilder1
+{
     type Neighborhood = NearestNeighborhood1<S>;
 
     fn build_neighborhood(
         &self,
-        point: &<Lattice1<S> as Lattice>::Point,
-        lattice: &Lattice1<S>,
+        point: &<UniversalLattice<1, S> as Lattice>::Point,
+        lattice: &UniversalLattice<1, S>,
     ) -> Self::Neighborhood {
         let mut states = Vec::new();
 
@@ -52,7 +56,9 @@ impl<S: Clone + Default> NeighborhoodBuilder<Lattice1<S>> for NearestNeighborhoo
                 continue;
             }
 
-            let neighbor_point = Lattice1Point::new(point.x() + offset);
+            let x = point.get(0).unwrap();
+
+            let neighbor_point = UniversalLatticePoint::new([x + offset]);
             let state = lattice.get_state(&neighbor_point);
 
             states.push(state);
