@@ -1,11 +1,9 @@
 use crate::{rule::WolframCodeRule, state::WolframCodeState};
 #[cfg(feature = "wasm")]
 use lattice_wrapper_macros::define_lattice_wrapper;
-use toolkit::lattice::lattice1::Lattice1Size;
+use lattice_wrapper_macros::{define_point_wrapper, define_size_wrapper};
 use toolkit::{
-    lattice::{lattice1::Lattice1, lattice1_point::Lattice1Point},
-    neighborhood::nearest::NearestNeighborhoodBuilder1,
-    types::CellularAutomaton,
+    lattice::{universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint, universal_lattice_size::UniversalLatticeSize}, neighborhood::nearest::NearestNeighborhoodBuilder1, types::CellularAutomaton
 };
 
 #[cfg(feature = "wasm")]
@@ -28,8 +26,10 @@ impl WolframCodeAutomaton {
     }
 }
 
+use toolkit::prelude::*;
+
 impl CellularAutomaton for WolframCodeAutomaton {
-    type Lattice = Lattice1<WolframCodeState>;
+    type Lattice = UniversalLattice<1, WolframCodeState>;
     type Rule = WolframCodeRule;
     type NeighborhoodBuilder = NearestNeighborhoodBuilder1;
 
@@ -40,17 +40,55 @@ impl CellularAutomaton for WolframCodeAutomaton {
     fn neighborhood_builder(&self) -> Self::NeighborhoodBuilder {
         NearestNeighborhoodBuilder1::new(1)
     }
+
+    fn step(&self, lattice: &mut Self::Lattice) {
+        let points = lattice.points();
+
+        let mut new_states = Vec::with_capacity(points.len());
+        let rule = self.rule();
+        let builder = self.neighborhood_builder();
+
+        for point in &points {
+            let neighborhood = builder.build_neighborhood(&point, lattice);
+            let current_state = lattice.get_state(&point);
+
+            let new_state = rule.apply(&current_state, &neighborhood);
+            new_states.push(new_state);
+        }
+
+        for (point, new_state) in points.into_iter().zip(new_states) {
+            lattice.set_state(&point, &new_state);
+        }
+
+    }
 }
 
 #[cfg(feature = "wasm")]
-type InnerLattice = Lattice1<WolframCodeState>;
+type InnerSize = UniversalLatticeSize<1>;
+#[cfg(feature = "wasm")]
+define_size_wrapper!(
+    WolframCodeLatticeSize,
+    InnerSize
+);
 
+#[cfg(feature = "wasm")]
+type InnerPoint = UniversalLatticePoint<1>;
+#[cfg(feature = "wasm")]
+define_point_wrapper!(
+    WolframCodeLatticePoint,
+    InnerPoint
+);
+
+#[cfg(feature = "wasm")]
+type InnerLattice = UniversalLattice<1, WolframCodeState>;
 #[cfg(feature = "wasm")]
 define_lattice_wrapper!(
     WolframCodeLattice,
-    Lattice1Point,
+    WolframCodeLatticePoint,
     WolframCodeState,
-    Lattice1Size,
+    WolframCodeLatticeSize,
     InnerLattice,
-    WolframCodeAutomaton
+    WolframCodeAutomaton,
+    InnerSize,
+    InnerPoint
 );
