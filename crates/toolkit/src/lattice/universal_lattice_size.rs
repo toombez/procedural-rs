@@ -8,6 +8,14 @@ impl<const D: usize> UniversalLatticeSize<D> {
         Self(Point::new(coords))
     }
 
+    pub fn get(&self, index: usize) -> Option<&usize> {
+        self.0.get(index)
+    }
+
+    pub fn sizes(&self) -> [usize; D] {
+        self.0.coords()
+    }
+
     pub fn contains(&self, point: &UniversalLatticePoint<D>) -> bool {
         point.is_inside(&self)
     }
@@ -25,5 +33,11 @@ impl<const D: usize> IntoIterator for UniversalLatticeSize<D> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
+    }
+}
+
+impl<const D: usize> From<Vec<usize>> for UniversalLatticeSize<D> {
+    fn from(value: Vec<usize>) -> Self {
+        Self(Point::from(value))
     }
 }

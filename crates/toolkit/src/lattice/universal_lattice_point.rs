@@ -58,3 +58,9 @@ impl<const D: usize> Into<Point<D, i128>> for UniversalLatticePoint<D> {
         self.0
     }
 }
+
+impl<const D: usize> From<Vec<i128>> for UniversalLatticePoint<D> {
+    fn from(value: Vec<i128>) -> Self {
+        Self(Point::from(value))
+    }
+}

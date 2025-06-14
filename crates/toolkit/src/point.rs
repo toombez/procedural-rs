@@ -41,3 +41,18 @@ impl<const D: usize, C> IntoIterator for Point<D, C> {
         self.0.into_iter()
     }
 }
+
+impl<const D: usize, C: Default + Clone + Copy> From<Vec<C>> for Point<D, C> {
+    fn from(value: Vec<C>) -> Self {
+        let mut coords = [C::default(); D];
+
+        coords
+            .into_iter()
+            .enumerate()
+            .for_each(|(index, _)| {
+                coords[index] = value[index];
+            });
+
+        Self::new(coords)
+    }
+}
