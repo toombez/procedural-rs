@@ -1,4 +1,4 @@
-use crate::point::Point;
+use crate::{lattice::universal_lattice_size::UniversalLatticeSize, point::Point};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UniversalLatticePoint<const D: usize>(Point<D, i128>);
@@ -14,6 +14,25 @@ impl<const D: usize> UniversalLatticePoint<D> {
 
     pub fn coords(&self) -> [i128; D] {
         self.0.coords()
+    }
+}
+
+impl<const D: usize> From<(usize, UniversalLatticeSize<D>)> for UniversalLatticePoint<D> {
+    fn from((index, size): (usize, UniversalLatticeSize<D>)) -> Self {
+        let size: Point<D, usize> = size.into();
+        let mut remaining = index;
+        let mut coords = [0; D];
+
+        for (index, dim) in size.into_iter().enumerate() {
+            coords[index] = (remaining % dim) as i128;
+            remaining /= dim;
+
+            if remaining == 0 {
+                break;
+            }
+        }
+
+        Self::new(coords)
     }
 }
 
