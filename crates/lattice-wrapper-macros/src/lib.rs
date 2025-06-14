@@ -3,6 +3,119 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse::Parse, parse_macro_input, Ident, Token};
 
+struct SizeWrapperInput {
+    wrapper_name: Ident,
+    size_struct: Ident,
+}
+
+impl Parse for SizeWrapperInput {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let wrapper_name = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let size_struct = input.parse()?;
+
+        Ok(Self {
+            wrapper_name,
+            size_struct,
+        })
+    }
+}
+
+#[proc_macro]
+pub fn define_size_wrapper(input: TokenStream) -> TokenStream {
+    let SizeWrapperInput {
+        wrapper_name,
+        size_struct,
+    } = parse_macro_input!(input as SizeWrapperInput);
+
+    quote! {
+        #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        pub struct #wrapper_name(#size_struct);
+
+        #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        impl #wrapper_name {
+            #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
+            pub fn new(sizes: Vec<usize>) -> Self {
+                Self(#size_struct::from(sizes))
+            }
+
+            #[cfg_attr(feature = "wasm", wasm_bindgen)]
+            pub fn get(&self, index: usize) -> Option<usize> {
+                self.0.get(index).cloned()
+            }
+
+            #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
+            pub fn sizes(&self) -> Vec<usize> {
+                self.0.sizes().into_iter().collect()
+            }
+        }
+
+        impl Into<#size_struct> for #wrapper_name {
+            fn into(self) -> #size_struct {
+                self.0
+            }
+        }
+
+        impl From<#size_struct> for #wrapper_name {
+            fn from(size: #size_struct) -> Self {
+                Self(size)
+            }
+        }
+    }
+    .into()
+}
+
+struct PointWrapperInput {
+    wrapper_name: Ident,
+    point: Ident,
+}
+
+impl Parse for PointWrapperInput {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let wrapper_name = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let point = input.parse()?;
+
+        Ok(Self {
+            wrapper_name,
+            point,
+        })
+    }
+}
+
+#[proc_macro]
+pub fn define_point_wrapper(input: TokenStream) -> TokenStream {
+    let PointWrapperInput {
+        wrapper_name,
+        point,
+    } = parse_macro_input!(input as PointWrapperInput);
+
+    quote! {
+        #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        pub struct #wrapper_name(#point);
+
+        #[cfg_attr(feature = "wasm", wasm_bindgen)]
+        impl #wrapper_name {
+            #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
+            pub fn new(coords: Vec<isize>) -> Self {
+                Self(#point::from(coords.into_iter().map(|coord| coord as i128).collect::<Vec<i128>>()))
+            }
+
+            #[cfg_attr(feature = "wasm", wasm_bindgen)]
+            pub fn get(&self, index: usize) -> Option<i128> {
+                self.0.get(index).copied()
+            }
+
+            #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
+            pub fn coords(&self) -> Vec<isize> {
+                self.0.coords().into_iter().map(|coord| coord as isize).collect()
+            }
+        }
+    }
+    .into()
+}
+
 struct LatticeWrapperInput {
     wrapper_name: Ident,
     point: Ident,
@@ -66,7 +179,6 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
             pub fn new(states: Vec<#state>, size: #size) -> Self {
                 Self::from_states(states, size)
             }
-
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
             pub fn from_states(states: Vec<#state>, size: #size) -> Self {
