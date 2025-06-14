@@ -1,12 +1,19 @@
-#[cfg(feature = "wasm")]
 use lattice_wrapper_macros::define_lattice_wrapper;
+use lattice_wrapper_macros::define_point_wrapper;
+use lattice_wrapper_macros::define_size_wrapper;
+
 #[cfg(feature = "wasm")]
-use toolkit::lattice::lattice2::Lattice2Size;
+use toolkit::lattice::universal_lattice::UniversalLattice;
 #[cfg(feature = "wasm")]
-use toolkit::lattice::lattice2_point::Lattice2Point;
+use toolkit::lattice::universal_lattice_point::UniversalLatticePoint;
+#[cfg(feature = "wasm")]
+use toolkit::lattice::universal_lattice_size::UniversalLatticeSize;
+
+use toolkit::neighborhood::moore::MooreNeighborhoodBuilder;
+#[cfg(feature = "wasm")]
+#[cfg(feature = "wasm")]
 use toolkit::types::BoundaryHandling;
 use toolkit::{
-    lattice::lattice2::Lattice2, neighborhood::moore::MooreNeighborhoodBuilder,
     types::CellularAutomaton,
 };
 
@@ -35,7 +42,7 @@ impl GameOfLifeAutomaton {
 }
 
 impl CellularAutomaton for GameOfLifeAutomaton {
-    type Lattice = Lattice2<GameOfLifeState>;
+    type Lattice = UniversalLattice<2, GameOfLifeState>;
     type Rule = GameOfLifeRule;
     type NeighborhoodBuilder = MooreNeighborhoodBuilder;
 
@@ -49,14 +56,31 @@ impl CellularAutomaton for GameOfLifeAutomaton {
 }
 
 #[cfg(feature = "wasm")]
-type InnerLattice = Lattice2<GameOfLifeState>;
+type InnerSize = UniversalLatticeSize<2>;
+#[cfg(feature = "wasm")]
+define_size_wrapper!(
+    GameOfLifeLatticeSize,
+    InnerSize
+);
 
+#[cfg(feature = "wasm")]
+type InnerPoint = UniversalLatticePoint<2>;
+#[cfg(feature = "wasm")]
+define_point_wrapper!(
+    GameOfLifeLatticePoint,
+    InnerPoint
+);
+
+#[cfg(feature = "wasm")]
+type InnerLattice = UniversalLattice<2, GameOfLifeState>;
 #[cfg(feature = "wasm")]
 define_lattice_wrapper!(
     GameOfLifeLattice,
-    Lattice2Point,
+    GameOfLifeLatticePoint,
     GameOfLifeState,
-    Lattice2Size,
+    GameOfLifeLatticeSize,
     InnerLattice,
-    GameOfLifeAutomaton
+    GameOfLifeAutomaton,
+    InnerSize,
+    InnerPoint
 );
