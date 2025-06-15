@@ -5,18 +5,18 @@ use syn::{parse::Parse, parse_macro_input, Ident, Token};
 
 struct SizeWrapperInput {
     wrapper_name: Ident,
-    size_struct: Ident,
+    inner_size: Ident,
 }
 
 impl Parse for SizeWrapperInput {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let wrapper_name = input.parse()?;
         input.parse::<Token![,]>()?;
-        let size_struct = input.parse()?;
+        let inner_size = input.parse()?;
 
         Ok(Self {
             wrapper_name,
-            size_struct,
+            inner_size,
         })
     }
 }
@@ -25,19 +25,19 @@ impl Parse for SizeWrapperInput {
 pub fn define_size_wrapper(input: TokenStream) -> TokenStream {
     let SizeWrapperInput {
         wrapper_name,
-        size_struct,
+        inner_size,
     } = parse_macro_input!(input as SizeWrapperInput);
 
     quote! {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         #[derive(Debug, Clone)]
-        pub struct #wrapper_name(#size_struct);
+        pub struct #wrapper_name(#inner_size);
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         impl #wrapper_name {
             #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
             pub fn new(sizes: Vec<usize>) -> Self {
-                Self(#size_struct::from(sizes))
+                Self(#inner_size::from_iter(sizes.into_iter()))
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -47,18 +47,18 @@ pub fn define_size_wrapper(input: TokenStream) -> TokenStream {
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
             pub fn sizes(&self) -> Vec<usize> {
-                self.0.sizes().into_iter().collect()
+                self.0.values().into_iter().collect()
             }
         }
 
-        impl Into<#size_struct> for #wrapper_name {
-            fn into(self) -> #size_struct {
+        impl Into<#inner_size> for #wrapper_name {
+            fn into(self) -> #inner_size {
                 self.0
             }
         }
 
-        impl From<#size_struct> for #wrapper_name {
-            fn from(size: #size_struct) -> Self {
+        impl From<#inner_size> for #wrapper_name {
+            fn from(size: #inner_size) -> Self {
                 Self(size)
             }
         }
@@ -68,18 +68,18 @@ pub fn define_size_wrapper(input: TokenStream) -> TokenStream {
 
 struct PointWrapperInput {
     wrapper_name: Ident,
-    point: Ident,
+    inner_point: Ident,
 }
 
 impl Parse for PointWrapperInput {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let wrapper_name = input.parse()?;
         input.parse::<Token![,]>()?;
-        let point = input.parse()?;
+        let inner_point = input.parse()?;
 
         Ok(Self {
             wrapper_name,
-            point,
+            inner_point,
         })
     }
 }
@@ -88,19 +88,19 @@ impl Parse for PointWrapperInput {
 pub fn define_point_wrapper(input: TokenStream) -> TokenStream {
     let PointWrapperInput {
         wrapper_name,
-        point,
+        inner_point,
     } = parse_macro_input!(input as PointWrapperInput);
 
     quote! {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-        pub struct #wrapper_name(#point);
+        pub struct #wrapper_name(#inner_point);
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         impl #wrapper_name {
             #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
             pub fn new(coords: Vec<isize>) -> Self {
-                Self(#point::from(coords.into_iter().map(|coord| coord as i128).collect::<Vec<i128>>()))
+                Self(#inner_point::from_iter(coords.into_iter().map(|coord| coord as i128)))
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
@@ -110,18 +110,18 @@ pub fn define_point_wrapper(input: TokenStream) -> TokenStream {
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
             pub fn coords(&self) -> Vec<isize> {
-                self.0.coords().into_iter().map(|coord| coord as isize).collect()
+                self.0.values().into_iter().map(|coord| coord as isize).collect()
             }
         }
 
-        impl Into<#point> for #wrapper_name {
-            fn into(self) -> #point {
+        impl Into<#inner_point> for #wrapper_name {
+            fn into(self) -> #inner_point {
                 self.0
             }
         }
 
-        impl From<#point> for #wrapper_name {
-            fn from(value: #point) -> Self {
+        impl From<#inner_point> for #wrapper_name {
+            fn from(value: #inner_point) -> Self {
                 Self(value)
             }
         }
@@ -131,11 +131,11 @@ pub fn define_point_wrapper(input: TokenStream) -> TokenStream {
 
 struct LatticeWrapperInput {
     wrapper_name: Ident,
-    point: Ident,
     state: Ident,
-    size: Ident,
-    lattice: Ident,
+    wrapper_point: Ident,
+    wrapper_size: Ident,
     automaton: Ident,
+    inner_lattice: Ident,
     inner_size: Ident,
     inner_point: Ident,
 }
@@ -144,15 +144,15 @@ impl Parse for LatticeWrapperInput {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let wrapper_name = input.parse()?;
         input.parse::<Token![,]>()?;
-        let point = input.parse()?;
-        input.parse::<Token![,]>()?;
         let state = input.parse()?;
         input.parse::<Token![,]>()?;
-        let size = input.parse()?;
+        let wrapper_point = input.parse()?;
         input.parse::<Token![,]>()?;
-        let lattice = input.parse()?;
+        let wrapper_size = input.parse()?;
         input.parse::<Token![,]>()?;
         let automaton = input.parse()?;
+        input.parse::<Token![,]>()?;
+        let inner_lattice = input.parse()?;
         input.parse::<Token![,]>()?;
         let inner_size = input.parse()?;
         input.parse::<Token![,]>()?;
@@ -160,11 +160,11 @@ impl Parse for LatticeWrapperInput {
 
         Ok(Self {
             wrapper_name,
-            point,
             state,
-            size,
-            lattice,
+            wrapper_point,
+            wrapper_size,
             automaton,
+            inner_lattice,
             inner_size,
             inner_point,
         })
@@ -175,11 +175,11 @@ impl Parse for LatticeWrapperInput {
 pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
     let LatticeWrapperInput {
         wrapper_name,
-        point,
         state,
-        size,
-        lattice,
+        wrapper_point,
+        wrapper_size,
         automaton,
+        inner_lattice,
         inner_size,
         inner_point,
     } = parse_macro_input!(input as LatticeWrapperInput);
@@ -193,44 +193,44 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         #[derive(Debug, Clone)]
         pub struct #wrapper_name {
-            inner: #lattice,
+            inner: #inner_lattice,
         }
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         impl #wrapper_name {
             #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
-            pub fn new(states: Vec<#state>, size: #size) -> Self {
+            pub fn new(states: Vec<#state>, size: #wrapper_size) -> Self {
                 Self::from_states(states, size)
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn from_states(states: Vec<#state>, size: #size) -> Self {
+            pub fn from_states(states: Vec<#state>, size: #wrapper_size) -> Self {
                 Self {
-                    inner: #lattice::from_states(states, size.into()),
+                    inner: #inner_lattice::from_states(states, size.into()),
                 }
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn from_size(size: #size) -> Self {
+            pub fn from_size(size: #wrapper_size) -> Self {
                 let size: #inner_size = size.into();
 
                 Self {
-                    inner: #lattice::from(size),
+                    inner: #inner_lattice::from(size),
                 }
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn get_state(&self, point: &#point) -> #state {
+            pub fn get_state(&self, point: &#wrapper_point) -> #state {
                 self.inner.get_state(&(*point).into())
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn set_state(&mut self, point: &#point, state: #state) {
+            pub fn set_state(&mut self, point: &#wrapper_point, state: #state) {
                 self.inner.set_state(&(*point).into(), &state);
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
-            pub fn points(&self) -> Vec<#point> {
+            pub fn points(&self) -> Vec<#wrapper_point> {
                 self.inner.points().into_iter().map(|point| point.into()).collect()
             }
 
@@ -242,7 +242,7 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
             #[cfg_attr(feature = "wasm", wasm_bindgen(getter))]
             pub fn points_with_states(&self) -> Vec<#tuple_name> {
                 self.inner.clone().into_iter().map(|(point, state)| {
-                    let point: #point = point.into();
+                    let point: #wrapper_point = point.into();
                     #tuple_name::from((point, state))
                 }).collect()
             }
@@ -258,31 +258,31 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn size(&self) -> #size {
+            pub fn size(&self) -> #wrapper_size {
                 self.inner.size().into()
             }
 
             #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            pub fn set_size(&mut self, size: #size) {
+            pub fn set_size(&mut self, size: #wrapper_size) {
                 self.inner.set_size(size.into());
             }
 
             // #[cfg_attr(feature = "wasm", wasm_bindgen)]
-            // pub fn transform_point(&self, point: &#point) -> #point {
+            // pub fn transform_point(&self, point: &#wrapper_point) -> #wrapper_point {
             //     self.inner.transform_point(point)
             // }
         }
 
-        impl From<#lattice> for #wrapper_name {
-            fn from(value: #lattice) -> Self {
+        impl From<#inner_lattice> for #wrapper_name {
+            fn from(value: #inner_lattice) -> Self {
                 Self {
                     inner: value
                 }
             }
         }
 
-        impl Into<#lattice> for #wrapper_name {
-            fn into(self) -> #lattice {
+        impl Into<#inner_lattice> for #wrapper_name {
+            fn into(self) -> #inner_lattice {
                 self.inner
             }
         }
@@ -290,28 +290,28 @@ pub fn define_lattice_wrapper(input: TokenStream) -> TokenStream {
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         impl #automaton {
             #[cfg_attr(feature = "wasm", wasm_bindgen(js_name = "step"))]
-            pub fn step_wrapper(&self, lattice: &mut #wrapper_name) {
-                self.step(&mut lattice.inner);
+            pub fn step_wrapper(&self, inner_lattice: &mut #wrapper_name) {
+                self.step(&mut inner_lattice.inner);
             }
         }
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         #[derive(Debug, Clone)]
         pub struct #tuple_name {
-            pub point: #point,
+            pub point: #wrapper_point,
             pub state: #state,
         }
 
         #[cfg_attr(feature = "wasm", wasm_bindgen)]
         impl #tuple_name {
             #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
-            pub fn new(point: #point, state: #state) -> Self {
+            pub fn new(point: #wrapper_point, state: #state) -> Self {
                 Self { point, state }
             }
         }
 
-        impl From<(#point, #state)> for #tuple_name {
-            fn from(value: (#point, #state)) -> Self {
+        impl From<(#wrapper_point, #state)> for #tuple_name {
+            fn from(value: (#wrapper_point, #state)) -> Self {
                 Self {
                     point: value.0,
                     state: value.1,
