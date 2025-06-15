@@ -1,12 +1,10 @@
 use std::collections::BTreeMap;
 
 use crate::{
-    lattice::{
-        universal_lattice_point::UniversalLatticePoint,
-        universal_lattice_size::UniversalLatticeSize,
-    },
+    aliases::{UniversalLatticePoint, UniversalLatticeSize},
+    lattice::universal_point_generator::UniversalPointGenerator,
     types::{BoundaryHandling, BoundaryHandlingLattice, Lattice},
-    utils::{clamp_coordinate, wrap_coordinate},
+    utils::{clamp_coordinate, point_from_flat_index, wrap_coordinate},
 };
 
 #[derive(Debug, Clone)]
@@ -47,19 +45,20 @@ impl<const D: usize, S: Clone + Default> Lattice for UniversalLattice<D, S> {
     fn set_state(&mut self, point: &Self::Point, state: &Self::State) {
         let transformed = self.transform_point(point);
 
-        if !transformed.is_inside(&self.size()) {
-            return
+        if !(transformed < self.size.convert::<i128>()) {
+            return;
         }
 
         self.points.insert(transformed, state.clone());
     }
 
-    fn points(&self) -> Vec<Self::Point> {
+    fn sparse_points(&self) -> Vec<Self::Point> {
         self.points.keys().map(|point| *point).collect()
     }
 
-    fn states(&self) -> Vec<Self::State> {
-        self.points.values().map(|state| state.clone()).collect()
+    fn points(&self) -> Vec<Self::Point> {
+        let generator = UniversalPointGenerator::new(self.size);
+        generator.collect()
     }
 }
 
@@ -70,7 +69,7 @@ impl<const D: usize, S: Clone + Default> BoundaryHandlingLattice for UniversalLa
         let mut lattice = Self::from(size);
 
         states.into_iter().enumerate().for_each(|(index, state)| {
-            let point = UniversalLatticePoint::from((index, size));
+            let point = point_from_flat_index(index, size);
             lattice.set_state(&point, &state);
         });
 
@@ -78,17 +77,13 @@ impl<const D: usize, S: Clone + Default> BoundaryHandlingLattice for UniversalLa
     }
 
     fn transform_point(&self, point: &Self::Point) -> Self::Point {
-        if point.is_inside(&self.size) {
-            return *point;
-        }
-
         let coords_cb = match self.boundary_handling() {
             BoundaryHandling::Default => return *point,
             BoundaryHandling::Clamp => |(coord, size)| clamp_coordinate(coord, size as usize),
             BoundaryHandling::Wrap => |(coord, size)| wrap_coordinate(coord, size as usize),
         };
 
-        let mut coords = point.coords();
+        let mut coords = point.values();
         point
             .into_iter()
             .zip(self.size)
@@ -113,10 +108,9 @@ impl<const D: usize, S: Clone + Default> BoundaryHandlingLattice for UniversalLa
 
     fn set_size(&mut self, size: Self::Size) {
         self.size = size;
-        self
-            .points()
+        self.points()
             .iter()
-            .filter(|point| !point.is_inside(&size))
+            .filter(|point| !(point < &&size.convert::<i128>()))
             .for_each(|point| {
                 self.points.remove(point);
             });

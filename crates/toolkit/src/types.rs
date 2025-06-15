@@ -1,3 +1,5 @@
+// use std::ops::{Index, IndexMut};
+
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -10,9 +12,18 @@ pub enum BoundaryHandling {
     Clamp,
 }
 
+// pub trait Point<const D: usize, C>
+// where
+//     Self: FromIterator<C> + IntoIterator<Item = C> + Index<usize> + IndexMut<usize>,
+// {
+//     fn new(values: [C; D]) -> Self;
+//     fn get(index: usize) -> Option<C>;
+//     fn values() -> [C; D];
+// }
+
 pub trait Lattice
 where
-    Self: IntoIterator<Item = (Self::Point, Self::State)>
+    Self: IntoIterator<Item = (Self::Point, Self::State)>,
 {
     type Point;
     type State;
@@ -20,13 +31,27 @@ where
     fn get_state(&self, point: &Self::Point) -> Self::State;
     fn set_state(&mut self, point: &Self::Point, state: &Self::State);
     fn points(&self) -> Vec<Self::Point>;
-    fn states(&self) -> Vec<Self::State>;
+    fn sparse_points(&self) -> Vec<Self::Point>;
+
+    fn sparse_states(&self) -> Vec<Self::State> {
+        self.sparse_points()
+            .iter()
+            .map(|point| self.get_state(point))
+            .collect()
+    }
+
+    fn states(&self) -> Vec<Self::State> {
+        self.points()
+            .iter()
+            .map(|point| self.get_state(point))
+            .collect()
+    }
 }
 
 pub trait BoundaryHandlingLattice
 where
     Self::Point: Clone,
-    Self: Lattice + From<Self::Size>
+    Self: Lattice + From<Self::Size>,
 {
     type Size: Copy;
 

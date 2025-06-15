@@ -1,6 +1,6 @@
-use toolkit::lattice::{universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint, universal_lattice_size::UniversalLatticeSize};
+use toolkit::{aliases::UniversalLatticePoint, lattice::universal_lattice::UniversalLattice};
 use wolfram_code::{
-    automaton::{WolframCodeAutomaton, WolframCodeLattice, WolframCodeLatticePoint, WolframCodeLatticeSize},
+    automaton::{WolframCodeAutomaton, WolframCodeLatticeSize},
     rule::WolframCodeRule,
     state::WolframCodeState,
 };
@@ -9,16 +9,15 @@ use toolkit::prelude::*;
 
 pub fn main() {
     let ca = WolframCodeAutomaton::new(WolframCodeRule::new(99));
-    let mut l =
-        UniversalLattice::<1, WolframCodeState>::from_states(vec![WolframCodeState::Dead], WolframCodeLatticeSize::new([10].to_vec()).into());
+    let mut l = UniversalLattice::<1, WolframCodeState>::from_states(
+        vec![WolframCodeState::Dead],
+        WolframCodeLatticeSize::new([10].to_vec()).into(),
+    );
 
     let center = *l.size().get(0).unwrap() / 2;
     let len = *l.size().get(0).unwrap();
 
-    l.set_state(
-        &UniversalLatticePoint::new([center as i128]),
-        &WolframCodeState::Alive,
-    );
+    l.set_state(&UniversalLatticePoint::new([center as i128]), &WolframCodeState::Alive);
 
     for _ in 0..30 {
         for x in 0..len {

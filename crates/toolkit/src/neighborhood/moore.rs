@@ -1,5 +1,7 @@
 use crate::{
-    lattice::{universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint}, types::{Lattice, Neighborhood, NeighborhoodBuilder}
+    aliases::UniversalLatticePoint,
+    lattice::universal_lattice::UniversalLattice,
+    types::{Lattice, Neighborhood, NeighborhoodBuilder},
 };
 
 #[derive(Debug)]
