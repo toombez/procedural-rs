@@ -5,9 +5,8 @@ use lattice_wrapper_macros::define_size_wrapper;
 #[cfg(feature = "wasm")]
 use toolkit::lattice::universal_lattice::UniversalLattice;
 #[cfg(feature = "wasm")]
-use toolkit::lattice::universal_lattice_point::UniversalLatticePoint;
 #[cfg(feature = "wasm")]
-use toolkit::lattice::universal_lattice_size::UniversalLatticeSize;
+use toolkit::aliases::{UniversalLatticeSize, UniversalLatticePoint};
 
 use toolkit::neighborhood::moore::MooreNeighborhoodBuilder;
 #[cfg(feature = "wasm")]
@@ -76,11 +75,11 @@ type InnerLattice = UniversalLattice<2, GameOfLifeState>;
 #[cfg(feature = "wasm")]
 define_lattice_wrapper!(
     GameOfLifeLattice,
-    GameOfLifeLatticePoint,
     GameOfLifeState,
+    GameOfLifeLatticePoint,
     GameOfLifeLatticeSize,
-    InnerLattice,
     GameOfLifeAutomaton,
+    InnerLattice,
     InnerSize,
     InnerPoint
 );
