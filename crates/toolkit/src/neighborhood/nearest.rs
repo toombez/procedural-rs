@@ -1,8 +1,5 @@
 use crate::{
-    lattice::{
-        universal_lattice::UniversalLattice, universal_lattice_point::UniversalLatticePoint,
-    },
-    prelude::*,
+    aliases::UniversalLatticePoint, lattice::universal_lattice::UniversalLattice, prelude::*,
 };
 
 #[derive(Debug, Clone)]
