@@ -1,7 +1,5 @@
 use std::ops::{Index, IndexMut};
 
-use crate::utils::{point_from_flat_index, ULP, ULS};
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UniversalPoint<C, const D: usize>([C; D]);
 
@@ -72,37 +70,5 @@ impl<const D: usize, C> Index<usize> for UniversalPoint<C, D> {
 impl<const D: usize, C> IndexMut<usize> for UniversalPoint<C, D> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         self.0.index_mut(index)
-    }
-}
-
-pub struct UniversalPointGenerator<const D: usize> {
-    remaining: usize,
-    size: ULS<D>,
-    index: usize,
-}
-
-impl<const D: usize> UniversalPointGenerator<D> {
-    pub fn new(until: ULS<D>) -> Self {
-        let index = until.values().iter().product();
-
-        Self {
-            remaining: index,
-            size: until,
-            index,
-        }
-    }
-}
-
-impl<const D: usize> Iterator for UniversalPointGenerator<D> {
-    type Item = ULP<D>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.remaining == 0 {
-            None
-        } else {
-            let index = self.index - self.remaining;
-            self.remaining -= 1;
-            Some(point_from_flat_index::<D>(index, self.size))
-        }
     }
 }
